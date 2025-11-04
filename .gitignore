@@ -1,0 +1,28 @@
+# Виртуальное окружение
+venv/
+ENV/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Система
+.DS_Store
+Thumbs.db
+
+# База данных
+*.db
+instance/
+
+# IDE и редакторы
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Логи
+*.log
+
+# Файлы конфигурации, которые могут содержать секреты
+.env
