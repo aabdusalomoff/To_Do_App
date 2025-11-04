@@ -5,18 +5,15 @@ from flask_sqlalchemy import SQLAlchemy
 app = Flask(__name__)
 
 # -----------------------------
-# Настройка базы данных
+# Настройка базы данных SQLite
 # -----------------------------
-# Для локальной разработки или SQLite на Railway
-if os.environ.get("DATABASE_URL") is None:
-    # Создаём папку instance для SQLite
-    if not os.path.exists('instance'):
-        os.makedirs('instance')
-    app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/tasks.db'
-else:
-    # Для PostgreSQL на Railway (DATABASE_URL автоматически создаётся)
-    app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("DATABASE_URL")
+# Путь к папке instance, которая точно существует
+instance_path = os.path.join(os.getcwd(), 'instance')
+if not os.path.exists(instance_path):
+    os.makedirs(instance_path)
 
+db_path = os.path.join(instance_path, 'tasks.db')
+app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
@@ -27,9 +24,6 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     done = db.Column(db.Boolean, default=False)
-
-    def __repr__(self):
-        return f'<Task {self.id}: {self.title}>'
 
 # -----------------------------
 # Роуты
@@ -68,10 +62,9 @@ def delete(id):
 # Запуск приложения
 # -----------------------------
 if __name__ == '__main__':
-    # Создаём базу при запуске
     with app.app_context():
-        db.create_all()
+        db.create_all()  # создаём базу при первом запуске
 
-    # Для Railway обязательно host='0.0.0.0' и порт из переменной окружения
+    # host и порт для Railway
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, host='0.0.0.0', port=port)
