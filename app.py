@@ -1,10 +1,11 @@
+import os
 from flask import Flask, render_template, request, redirect, url_for
 from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# Настройка SQLite базы
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///tasks.db'
+# Настройка базы данных SQLite
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///instance/tasks.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db = SQLAlchemy(app)
@@ -34,7 +35,7 @@ def add():
         db.session.commit()
     return redirect(url_for('index'))
 
-# Отметка как выполнено
+# Отметка задачи как выполненной
 @app.route('/complete/<int:id>')
 def complete(id):
     task = Task.query.get(id)
@@ -53,6 +54,12 @@ def delete(id):
     return redirect(url_for('index'))
 
 if __name__ == '__main__':
+    # Создание папки instance, если её нет
+    if not os.path.exists('instance'):
+        os.makedirs('instance')
     with app.app_context():
-        db.create_all()  # создаёт таблицу tasks.db при первом запуске
-    app.run(debug=True)
+        db.create_all()  # Создаём базу данных при первом запуске
+
+    # Запуск Flask с портом и хостом, которые нужны для Railway
+    port = int(os.environ.get('PORT', 5000))
+    app.run(debug=True, host='0.0.0.0', port=port)
