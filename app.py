@@ -4,10 +4,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 
-# -----------------------------
-# Настройка базы данных SQLite
-# -----------------------------
-# Путь к папке instance, которая точно существует
+
 instance_path = os.path.join(os.getcwd(), 'instance')
 if not os.path.exists(instance_path):
     os.makedirs(instance_path)
@@ -17,17 +14,12 @@ app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
-# -----------------------------
-# Модель задачи
-# -----------------------------
+
 class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     done = db.Column(db.Boolean, default=False)
 
-# -----------------------------
-# Роуты
-# -----------------------------
 @app.route('/')
 def index():
     tasks = Task.query.all()
@@ -58,10 +50,8 @@ def delete(id):
         db.session.commit()
     return redirect(url_for('index'))
 
-# -----------------------------
-# Запуск приложения
-# -----------------------------
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, host='127.0.0.1', port=5001)  # меняем на свободный порт
+    app.run(debug=True, host='127.0.0.1', port=5001)  
